@@ -1,0 +1,52 @@
+# Create the proper workflow
+cat > .gitea/workflows/deploy.yml << 'EOF'
+name: Deploy Words App
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and deploy
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          # Navigate to project directory
+          cd /home/${{ secrets.SERVER_USER }}/dev/word-mastermind
+          
+          # Pull latest code
+          git pull origin master
+          
+          # Build and push to local registry
+          docker build -t localhost:5000/words:latest .
+          docker push localhost:5000/words:latest
+          
+          # Stop and remove old container
+          docker stop words-v2 || true
+          docker rm words-v2 || true
+          
+          # Run new container
+          docker run -d \
+            --name words-v2 \
+            -p 8086:80 \
+            -e LISTEN_ADDRESS=0.0.0.0 \
+            -e PORT=80 \
+            -e NODE_ENV=production \
+            --restart unless-stopped \
+            localhost:5000/words:latest
+          
+          echo "🚀 Deployment complete!"
