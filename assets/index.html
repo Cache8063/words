@@ -29,8 +29,21 @@
                              :key="theme.id"
                              @click.stop="selectTheme(theme.id)"
                              :class="{active: currentTheme === theme.id}">
-                            <div class="theme-preview" :style="theme.preview"></div>
-                            <span>{{ theme.name }}</span>
+                            <div class="theme-info">
+                                <div class="theme-preview" :style="theme.preview"></div>
+                                <span>{{ theme.name }}</span>
+                            </div>
+                            <div class="theme-legend">
+                                <div class="legend-item legend-correct" 
+                                     :style="{backgroundColor: theme.colors.correct}"
+                                     title="Correct position"></div>
+                                <div class="legend-item legend-present" 
+                                     :style="{backgroundColor: theme.colors.present}"
+                                     title="Wrong position"></div>
+                                <div class="legend-item legend-absent" 
+                                     :style="{backgroundColor: theme.colors.absent}"
+                                     title="Not in word"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -60,6 +60,11 @@ const app = new Vue({
                 name: 'Default Dark',
                 preview: {
                     background: 'linear-gradient(45deg, #121213 50%, #538d4e 50%)'
+                },
+                colors: {
+                    correct: '#538d4e',
+                    present: '#b59f3b', 
+                    absent: '#3a3a3c'
                 }
             },
             {
@@ -67,6 +72,11 @@ const app = new Vue({
                 name: 'Blue Accent',
                 preview: {
                     background: 'linear-gradient(45deg, #0f1419 50%, #4299e1 50%)'
+                },
+                colors: {
+                    correct: '#4299e1',
+                    present: '#ed8936',
+                    absent: '#2d3748'
                 }
             },
             {
@@ -74,6 +84,11 @@ const app = new Vue({
                 name: 'Purple Violet',
                 preview: {
                     background: 'linear-gradient(45deg, #1a1625 50%, #9f7aea 50%)'
+                },
+                colors: {
+                    correct: '#9f7aea',
+                    present: '#f6ad55',
+                    absent: '#553c9a'
                 }
             },
             {
@@ -81,6 +96,11 @@ const app = new Vue({
                 name: 'Green Nature',
                 preview: {
                     background: 'linear-gradient(45deg, #0f1f0f 50%, #48bb78 50%)'
+                },
+                colors: {
+                    correct: '#48bb78',
+                    present: '#ed8936',
+                    absent: '#2d4a2d'
                 }
             },
             {
@@ -88,6 +108,11 @@ const app = new Vue({
                 name: 'High Contrast',
                 preview: {
                     background: 'linear-gradient(45deg, #000000 50%, #00ff00 50%)'
+                },
+                colors: {
+                    correct: '#00ff00',
+                    present: '#ffff00',
+                    absent: '#333333'
                 }
             }
         ]
@@ -317,6 +342,10 @@ const app = new Vue({
             const storedTheme = getStoredTheme();
             this.currentTheme = storedTheme;
             this.applyTheme(storedTheme);
+            
+            // Force dark mode immediately to prevent light mode flash
+            document.querySelector("body").classList.add("dark");
+            this.darkMode = true;
         },
 
         toggleDarkMode: function() {
