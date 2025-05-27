@@ -1,94 +1,122 @@
-# Word Mastermind
+Words
 
-This game is a clone of [Wordle](https://www.powerlanguage.co.uk/wordle/).
-It's like the [MasterMind game](https://en.wikipedia.org/wiki/Mastermind_(board_game)), but instead of colors you have to guess words.
+A modern word guessing game inspired by Wordle, featuring multiple themes and endless gameplay.
+✨ Features
 
-## Why?
+    Endless gameplay - Play as many games as you want
+    Multiple themes - 5 beautiful color schemes including high contrast mode
+    Mobile optimized - Perfect touch experience on all devices
+    Multiple languages - Support for different dictionaries
+    Responsive design - Works seamlessly on desktop and mobile
+    Dark mode by default - Easy on the eyes
 
-* The original game only allows one word per day. This one can be played endlessly.
-* Can work with custom dictionary files
+🎨 Themes
 
-## Demo
+    Default Dark - Classic wordle colors
+    Blue Accent - Cool blue tones
+    Purple Violet - Rich purple hues
+    Green Nature - Natural green palette
+    High Contrast - Accessibility-focused design
 
-You can try it out on Glitch:
+🚀 Quick Start
+Using Docker
 
-* [English](https://word-mastermind.glitch.me/)
-* [Romanian](https://word-mastermind.glitch.me/?dictName=ro-ro-5)
-* [Romanian (6 letter words)](https://word-mastermind.glitch.me/?dictName=ro-ro-6)
-* [Swedish](https://word-mastermind.glitch.me/?dictName=sv-se-5)
-* [Dutch](https://word-mastermind.glitch.me/?dictName=nl-nl-5)
+bash
 
-## How to Play
+docker run -d -p 3333:80 words:latest
 
-The goal of the game is to guess a target word.
+Local Development
 
-To do so, you enter guesses and the game will provide feedback for each letter of your guess:
+bash
 
-* a letter that is placed in the correct spot will be marked green
-* a letter that is present in the target word, but incorrectly placed will be marked yellow
-* the unmarked letters are simply not present in the target word
+# Clone the repository
+git clone https://gitea.cloudforest-basilisk.ts.net/Arcnode.xyz/words.git
+cd words
 
-All submitted guesses have to be valid words.
+# Install dependencies
+npm install
 
-To make it easy, the keyboard at the bottom of the screen will highlight the statuses of each letter: present (green), not present (dark gray), unknown (light gray).
+# Start the server
+npm start
 
-## Running the program
+# Open http://localhost:3333
 
-Clone this repo:
+🎮 How to Play
 
-```
-git clone https://github.com/clupasq/word-mastermind.git
-cd word-mastermind
-```
+    Guess the word - Enter a 5-letter word
+    Get feedback - Letters are colored based on correctness:
+        🟩 Green - Correct letter in correct position
+        🟨 Yellow - Correct letter in wrong position
+        ⬛ Gray - Letter not in the word
+    Win the game - Guess the word in 6 tries or less!
 
-There are two options for runnning the program: with Node.JS or in Docker.
+🌍 Supported Languages
 
+    English (en-us-5)
+    Romanian (ro-ro-5, ro-ro-6)
+    Swedish (sv-se-5)
+    Dutch (nl-nl-5)
 
-### Running with Docker
+🛠️ Technology Stack
 
-The easiest option is to use Docker.
-You can either pull the latest docker image from the Github Repository, or build it yourself.
+    Backend: Node.js, Fastify
+    Frontend: Vue.js 2, Bootstrap 5
+    Styling: CSS Custom Properties for theming
+    Icons: Bootstrap Icons
+    Mobile: Touch-optimized, responsive design
 
-To pull the image:
+📱 Mobile Features
 
-```
-docker pull ghcr.io/clupasq/word-mastermind:latest
-```
+    No zoom on button taps
+    Large touch targets (44px+)
+    Landscape mode support
+    Responsive tile sizing
+    Optimized keyboard layout
 
-To build the image:
+🔧 Configuration
 
-```
-cd word-mastermind
-docker build -t word-mastermind .
-cd ..
-```
+You can customize the game by adding URL parameters:
 
-Once the image is available, you can start a container:
+    ?dictName=ro-ro-5 - Use Romanian dictionary
+    ?dictName=sv-se-5 - Use Swedish dictionary
 
-```
-docker run --rm -p "3333:80" word-mastermind
-```
+🐳 Docker
 
-Then, go to http://localhost:3333.
+bash
 
+# Build from source
+docker build -t words .
 
-### Running with node
+# Run container
+docker run -d -p 3333:80 words
 
-Make sure you have Node.JS 16 and yarn installed.
+# Using docker-compose
+docker-compose up -d
 
-Install dependencies:
-```
-yarn install
-```
+🎯 Development
 
-Run the server:
-```
-yarn start
-```
+bash
 
-Open the application:
+# Run tests
+npm test
 
+# Watch mode
+npm run test:watch
 
-Go to your browser and navigate to http://localhost:3333
+# Start development server
+npm start
 
+📄 License
+
+MIT License - feel free to use this project for anything!
+🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+🔮 Future Features
+
+    AT Protocol integration for social features
+    Leaderboards and statistics
+    Game replay system
+    More language packs
+    Custom word lists
 
