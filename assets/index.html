@@ -5,28 +5,48 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
         <title>Word Mastermind</title>
         <link href="/style.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
         <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
         <script src="/client-app.js" defer></script>
     </head>
     <body>
-        <div id="app" class="main-container">
+        <div
+            id="app"
+            class="container main-container"
+            >
             <div class="header">
                 <h1>Word Mastermind</h1>
-                <div class="theme-toggle" @click="toggleTheme">
-                    <i class="bi bi-palette"></i>
+
+                <!-- Theme Selector -->
+                <div class="theme-selector" @click="toggleThemeMenu">
+                    <i class="bi bi-palette" title="Change Theme"></i>
+                    
+                    <!-- Theme Menu -->
+                    <div v-if="showThemeMenu" class="theme-menu">
+                        <div class="theme-option" 
+                             v-for="theme in availableThemes" 
+                             :key="theme.id"
+                             @click.stop="selectTheme(theme.id)"
+                             :class="{active: currentTheme === theme.id}">
+                            <div class="theme-preview" :style="theme.preview"></div>
+                            <span>{{ theme.name }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="board">
                 <div v-if="gameState">
                     <div v-for="row, i in gameState.board"
-                         :id="'board-row-' + i"
-                         :class="{'board-row': true, current: i === gameState.currentAttempt, shake: i === gameState.currentAttempt && error}">
-                        <div v-for="tile in row" class="tile" :class="tile.result">
-                            {{tile.letter}}
+                         v-bind:id="'board-row-' + i"
+                         v-bind:class="{'board-row': true, current: i === gameState.currentAttempt, shake: i === gameState.currentAttempt && error}">
+                        <div v-for="tile in row">
+                            <div v-bind:class="{tile: true, [tile.result]: true}">
+                                {{tile.letter}}
+                            </div>
                         </div>
+                        <br />
                     </div>
                 </div>
             </div>
@@ -34,41 +54,48 @@
             <div class="keyboard">
                 <div class="keyboard-row" v-for="keyrow in keyboard">
                     <button
-                        :class="classForKey(key)"
+                        v-bind:class="classForKey(key)"
                         v-for="key in keyrow"
-                        @click="handleNewLetter(key)"
-                        @touchstart.passive
-                        :key="key">
+                        v-on:click="handleNewLetter(key)"
+                        >
                         {{ formatKeyLabel(key) }}
                     </button>
                 </div>
             </div>
 
-            <div class="popup" v-if="gameState && gameState.finished">
+            <div class="popup summary" v-if="gameState && gameState.finished">
                 <div v-if="gameState.won">
-                    <h1 class="display-6">Success! 🎉</h1>
-                    <hr style="border-color: #3a3a3c;">
-                    Congratulations, you guessed the word!
+                <h1 class="display-6">Success! 🎉</h1>
+                <hr />
+                Congratulations, you guessed the word!
                 </div>
+
                 <div v-else>
-                    <h1 class="display-6">Game Over</h1>
-                    <hr style="border-color: #3a3a3c;">
-                    The word was:<br>
-                    <h2 style="color: #538d4e; margin: 15px 0;">
-                        <strong>{{ gameState.revealedWord }}</strong>
-                    </h2>
+                    <h1 class="display-6">Oh, no!</h1>
+                    <hr />
+                    You didn't manage to guess.<br />
+                    The word was:<br />
+                    <h1 class="display-6">
+                        <strong> {{ gameState.revealedWord }} </strong>
+                    </h1>
+
                 </div>
-                <hr style="border-color: #3a3a3c;">
-                <button class="btn btn-primary" @click="startGame">
-                    Start New Game
+
+                <hr />
+                <button
+                    class="btn btn-primary"
+                    v-on:click="startGame">
+                    Start a new game
                 </button>
+
             </div>
 
-            <div class="popup" v-if="error">
-                <h1 class="display-6">Invalid Word</h1>
-                <hr style="border-color: #3a3a3c;">
+            <div class="popup error" v-if="error">
+                <h1 class="display-6">Error</h1>
+                <hr />
                 {{ error }}
             </div>
+
         </div>
     </body>
 </html>
