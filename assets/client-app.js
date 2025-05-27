@@ -54,6 +54,40 @@ const app = new Vue({
         darkMode: true,
         currentTheme: 'default',
         showThemeMenu: false,
+        showDictionaryMenu: false,
+        currentDictionary: { id: 'en-us-5', name: 'English' },
+        availableDictionaries: [
+            {
+                id: 'en-us-5',
+                name: 'English',
+                description: 'Standard English words',
+                wordCount: '2,500+'
+            },
+            {
+                id: 'nerdy',
+                name: 'Nerdy',
+                description: 'Tech & science terms',
+                wordCount: '1,000+'
+            },
+            {
+                id: 'ro-ro-5',
+                name: 'Romanian',
+                description: 'Cuvinte românești',
+                wordCount: '1,500+'
+            },
+            {
+                id: 'sv-se-5',
+                name: 'Swedish',
+                description: 'Svenska ord',
+                wordCount: '1,200+'
+            },
+            {
+                id: 'nl-nl-5',
+                name: 'Dutch',
+                description: 'Nederlandse woorden',
+                wordCount: '1,100+'
+            }
+        ],
         availableThemes: [
             {
                 id: 'default',
@@ -127,7 +161,7 @@ const app = new Vue({
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    dictName: queryStringParams.dictName
+                    dictName: this.currentDictionary.id
                 })
             });
             const newGameData = await response.json();
@@ -157,7 +191,7 @@ const app = new Vue({
                 }
             }
 
-            console.log(this.gameState)
+            console.log(`Started new game with ${this.currentDictionary.name} dictionary`)
         },
 
         handleNewLetter: async function(key) {
@@ -305,9 +339,58 @@ const app = new Vue({
             return key;
         },
 
+        // Dictionary System Methods
+        toggleDictionaryMenu: function() {
+            this.showDictionaryMenu = !this.showDictionaryMenu;
+            // Close theme menu if open
+            this.showThemeMenu = false;
+        },
+
+        selectDictionary: function(dictId) {
+            const selectedDict = this.availableDictionaries.find(d => d.id === dictId);
+            if (selectedDict) {
+                this.currentDictionary = selectedDict;
+                this.showDictionaryMenu = false;
+                
+                // Save dictionary preference
+                document.cookie = `selectedDictionary=${dictId}; path=/; max-age=31536000`;
+                
+                // Start new game with selected dictionary
+                this.startGame();
+            }
+        },
+
+        initializeDictionary: function() {
+            // Check URL parameter first
+            if (queryStringParams.dictName) {
+                const urlDict = this.availableDictionaries.find(d => d.id === queryStringParams.dictName);
+                if (urlDict) {
+                    this.currentDictionary = urlDict;
+                    return;
+                }
+            }
+            
+            // Check stored preference
+            for (const cookie of document.cookie.split("; ")) {
+                const [name, value] = cookie.split("=");
+                if (name === "selectedDictionary") {
+                    const storedDict = this.availableDictionaries.find(d => d.id === value);
+                    if (storedDict) {
+                        this.currentDictionary = storedDict;
+                        return;
+                    }
+                }
+            }
+            
+            // Default to English
+            this.currentDictionary = this.availableDictionaries[0];
+        },
+
         // Theme System Methods
         toggleThemeMenu: function() {
             this.showThemeMenu = !this.showThemeMenu;
+            // Close dictionary menu if open
+            this.showDictionaryMenu = false;
         },
 
         selectTheme: function(themeId) {
@@ -362,7 +445,8 @@ const app = new Vue({
     },
 
     mounted: function() {
-        // Initialize theme first
+        // Initialize dictionary and theme first
+        this.initializeDictionary();
         this.initializeTheme();
         
         // Set dark mode
@@ -378,10 +462,13 @@ const app = new Vue({
             await this.handleNewLetter(e.key.toUpperCase());
         });
 
-        // Close theme menu when clicking outside
+        // Close menus when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.theme-selector')) {
                 this.showThemeMenu = false;
+            }
+            if (!e.target.closest('.dictionary-selector')) {
+                this.showDictionaryMenu = false;
             }
         });
 

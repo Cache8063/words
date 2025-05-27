@@ -117,16 +117,112 @@ body.dark {
 
 .header h1 {
     color: var(--text-primary);
-    margin: 0;
+    margin: 0 0 10px 0;
     font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
 }
 
-/* Theme Selector Styles */
-.theme-selector {
+.header-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Dictionary Selector Styles */
+.dictionary-selector {
+    position: relative;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-secondary);
+}
+
+.dictionary-selector:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.current-dict {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.dictionary-menu {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 100%;
+    left: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    z-index: 1000;
+    min-width: 220px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin-top: 4px;
+}
+
+.menu-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 8px;
+}
+
+.dictionary-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    transition: background-color 0.2s;
+}
+
+.dictionary-option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.dictionary-option.active {
+    background-color: var(--accent-primary);
+    color: var(--text-primary);
+}
+
+.dict-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dict-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.dict-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.dict-stats {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Theme Selector Updates */
+.theme-selector {
+    position: relative;
     cursor: pointer;
     padding: 8px;
     border-radius: 4px;
@@ -149,6 +245,7 @@ body.dark {
     z-index: 1000;
     min-width: 180px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin-top: 4px;
 }
 
 .theme-option {
