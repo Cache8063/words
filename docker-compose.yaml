@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   words:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: words:v2-themes
     ports:
       - "8086:80"
     environment:
