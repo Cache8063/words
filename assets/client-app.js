@@ -21,13 +21,21 @@ const isDarkModePreferred = () => {
         }
     }
 
-    // If no cookie for dark mode exists fallback to CSS Media-Queries for system-wide dark mode
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return true;
     }
 
-    // If no cookie, and Media-Queries aren't supported, fallback to light mode
-    return false;
+    return true; // Default to dark mode
+};
+
+const getStoredTheme = () => {
+    for (const cookie of document.cookie.split("; ")) {
+        const [name, value] = cookie.split("=");
+        if (name === "selectedTheme") {
+            return value;
+        }
+    }
+    return 'default'; // Default theme
 };
 
 const app = new Vue({
@@ -43,7 +51,46 @@ const app = new Vue({
 
         gameState: undefined,
         error: undefined,
-        darkMode: false
+        darkMode: true,
+        currentTheme: 'default',
+        showThemeMenu: false,
+        availableThemes: [
+            {
+                id: 'default',
+                name: 'Default Dark',
+                preview: {
+                    background: 'linear-gradient(45deg, #121213 50%, #538d4e 50%)'
+                }
+            },
+            {
+                id: 'blue',
+                name: 'Blue Accent',
+                preview: {
+                    background: 'linear-gradient(45deg, #0f1419 50%, #4299e1 50%)'
+                }
+            },
+            {
+                id: 'purple',
+                name: 'Purple Violet',
+                preview: {
+                    background: 'linear-gradient(45deg, #1a1625 50%, #9f7aea 50%)'
+                }
+            },
+            {
+                id: 'green',
+                name: 'Green Nature',
+                preview: {
+                    background: 'linear-gradient(45deg, #0f1f0f 50%, #48bb78 50%)'
+                }
+            },
+            {
+                id: 'contrast',
+                name: 'High Contrast',
+                preview: {
+                    background: 'linear-gradient(45deg, #000000 50%, #00ff00 50%)'
+                }
+            }
+        ]
     },
 
     methods: {
@@ -67,8 +114,8 @@ const app = new Vue({
                 currentAttempt: 0,
                 board: [],
                 wrongKeys: new Set(),
-                presentKeys: new Set(),  // Track yellow/present letters
-                correctKeys: new Set(),  // Track green/correct letters
+                presentKeys: new Set(),
+                correctKeys: new Set(),
                 finished: false,
                 won: false,
                 revealedWord: undefined
@@ -182,11 +229,9 @@ const app = new Vue({
                     if (tileResult === "2") {
                         tile.result = "correct";
                         this.gameState.correctKeys.add(tile.letter);
-                        // Remove from present keys if it was there before
                         this.gameState.presentKeys.delete(tile.letter);
                     } else if (tileResult === "1") {
                         tile.result = "present";
-                        // Only add to present if not already in correct keys
                         if (!this.gameState.correctKeys.has(tile.letter)) {
                             this.gameState.presentKeys.add(tile.letter);
                         }
@@ -211,8 +256,6 @@ const app = new Vue({
             this.gameState.currentAttempt++;
             const rowDom = document.getElementById(`board-row-${this.gameState.currentAttempt}`);
             if (rowDom) {
-                // In case of many attemps, if there's a scrollbar
-                // make sure the current row is visible.
                 if (rowDom.scrollIntoViewIfNeeded) {
                     rowDom.scrollIntoViewIfNeeded();
                 } else {
@@ -237,9 +280,43 @@ const app = new Vue({
             return key;
         },
 
-        toggleTheme: function() {
-            // Placeholder for future theme system
-            console.log('Theme toggle clicked');
+        // Theme System Methods
+        toggleThemeMenu: function() {
+            this.showThemeMenu = !this.showThemeMenu;
+        },
+
+        selectTheme: function(themeId) {
+            this.currentTheme = themeId;
+            this.applyTheme(themeId);
+            this.showThemeMenu = false;
+            
+            // Save theme preference
+            document.cookie = `selectedTheme=${themeId}; path=/; max-age=31536000`; // 1 year
+        },
+
+        applyTheme: function(themeId) {
+            const body = document.body;
+            const container = document.getElementById('app');
+            
+            // Remove existing theme classes
+            body.removeAttribute('data-theme');
+            if (container) {
+                container.removeAttribute('data-theme');
+            }
+            
+            // Apply new theme
+            if (themeId !== 'default') {
+                body.setAttribute('data-theme', themeId);
+                if (container) {
+                    container.setAttribute('data-theme', themeId);
+                }
+            }
+        },
+
+        initializeTheme: function() {
+            const storedTheme = getStoredTheme();
+            this.currentTheme = storedTheme;
+            this.applyTheme(storedTheme);
         },
 
         toggleDarkMode: function() {
@@ -256,6 +333,13 @@ const app = new Vue({
     },
 
     mounted: function() {
+        // Initialize theme first
+        this.initializeTheme();
+        
+        // Set dark mode
+        this.darkMode = true;
+        document.querySelector("body").classList.add("dark");
+        
         this.startGame();
 
         document.addEventListener("keyup", async (e) => {
@@ -263,6 +347,13 @@ const app = new Vue({
                 return
             }
             await this.handleNewLetter(e.key.toUpperCase());
+        });
+
+        // Close theme menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.theme-selector')) {
+                this.showThemeMenu = false;
+            }
         });
 
         if (isDarkModePreferred()) {
