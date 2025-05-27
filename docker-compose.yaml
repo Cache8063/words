@@ -12,7 +12,7 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: unless-stopped
+        condition: any
     labels:
       - "app=words"
       - "version=v2-themes"
