@@ -26,8 +26,8 @@ const isDarkModePreferred = () => {
         return true;
     }
 
-    // If no cookie, and Media-Queries aren't supported, fallback to light mode
-    return false;
+    // Default to dark mode
+    return true;
 };
 
 const app = new Vue({
@@ -43,7 +43,8 @@ const app = new Vue({
 
         gameState: undefined,
         error: undefined,
-        darkMode: false
+        darkMode: true,
+        currentTheme: 'dark'
     },
 
     methods: {
@@ -66,8 +67,9 @@ const app = new Vue({
                 wordLength,
                 currentAttempt: 0,
                 board: [],
-                wrongKeys: new Set(),
-                rightKeys: new Set(),
+                absentKeys: new Set(),
+                presentKeys: new Set(),
+                correctKeys: new Set(),
                 finished: false,
                 won: false,
                 revealedWord: undefined
@@ -88,8 +90,9 @@ const app = new Vue({
         },
 
         handleNewLetter: async function(key) {
-            if (key === "ENTER" && this.gameState.finished) {
+            if (key === "ENTER" && this.gameState?.finished) {
                 this.startGame();
+                return;
             }
 
             if (!this.gameState || this.gameState.finished) {
@@ -167,7 +170,7 @@ const app = new Vue({
                 this.error = data.error;
                 window.setTimeout(() => {
                     this.error = undefined;
-                }, 1000);
+                }, 1500);
                 return;
             }
 
@@ -180,12 +183,17 @@ const app = new Vue({
 
                     if (tileResult === "2") {
                         tile.result = "correct";
-                        this.gameState.rightKeys.add(tile.letter);
+                        this.gameState.correctKeys.add(tile.letter);
+                        // Remove from present keys if it was there
+                        this.gameState.presentKeys.delete(tile.letter);
                     } else if (tileResult === "1") {
                         tile.result = "present";
-                        this.gameState.rightKeys.add(tile.letter);
+                        // Only add to present if not already in correct
+                        if (!this.gameState.correctKeys.has(tile.letter)) {
+                            this.gameState.presentKeys.add(tile.letter);
+                        }
                     } else {
-                        this.gameState.wrongKeys.add(tile.letter);
+                        this.gameState.absentKeys.add(tile.letter);
                     }
                 }
             }
@@ -216,12 +224,39 @@ const app = new Vue({
         },
 
         classForKey: function(key) {
-            return {
+            const baseClasses = {
                 btn: true,
-                key: true,
-                right: this.gameState && this.gameState.rightKeys.has(key),
-                wrong: this.gameState && this.gameState.wrongKeys.has(key),
+                key: true
             };
+            
+            if (key === "ENTER") {
+                baseClasses.enter = true;
+            } else if (key === "⌫ ") {
+                baseClasses.backspace = true;
+            }
+            
+            if (this.gameState) {
+                if (this.gameState.correctKeys.has(key)) {
+                    baseClasses.correct = true;
+                } else if (this.gameState.presentKeys.has(key)) {
+                    baseClasses.present = true;
+                } else if (this.gameState.absentKeys.has(key)) {
+                    baseClasses.absent = true;
+                }
+            }
+            
+            return baseClasses;
+        },
+
+        formatKeyLabel: function(key) {
+            if (key === "⌫ ") return "⌫";
+            if (key === "ENTER") return "ENTER";
+            return key;
+        },
+
+        toggleTheme: function() {
+            // Placeholder for theme switching - Phase 2
+            console.log('Theme toggle clicked - Phase 2 feature');
         },
 
         toggleDarkMode: function() {
@@ -244,11 +279,20 @@ const app = new Vue({
             if (e.ctrlKey || e.altKey || e.metaKey) {
                 return
             }
-            await this.handleNewLetter(e.key.toUpperCase());
+            
+            let key = e.key.toUpperCase();
+            if (key === "BACKSPACE") key = "⌫ ";
+            
+            await this.handleNewLetter(key);
         });
 
+        // Set dark mode as default
         if (isDarkModePreferred()) {
             this.toggleDarkMode();
+        } else {
+            // Force dark mode as default
+            this.darkMode = true;
+            document.querySelector("body").classList.add("dark");
         }
     },
 })
