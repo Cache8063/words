@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  word-mastermind-v2:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: mastermind-v2-themes
+    ports:
+      - "8086:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - LISTEN_ADDRESS=0.0.0.0
+      - PORT=80
+    labels:
+      - "traefik.enable=false"
+      - "version=v2-themes"
