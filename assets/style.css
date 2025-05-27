@@ -348,4 +348,15 @@ body.dark .popup {
     .btn.key {
         min-height: 45px;
     }
+    /* Add this to your existing style.css */
+
+.btn.key.present {
+    background-color: #c9b458;
+    color: #fff;
+}
+
+body.dark .btn.key.present {
+    background-color: #c9b458;
+    color: #fff;
+}
 }
