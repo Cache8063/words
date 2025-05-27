@@ -1,8 +1,9 @@
+cat > docker-compose.yaml << 'EOF'
 version: '3.8'
 
 services:
   words:
-    image: words:v2-themes
+    image: ghcr.io/cache8063/words:latest
     ports:
       - "8086:80"
     environment:
@@ -18,4 +19,5 @@ services:
         window: 120s
     labels:
       - "app=words"
-      - "version=v2-themes"
+      - "version=latest"
+EOF
