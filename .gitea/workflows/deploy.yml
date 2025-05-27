@@ -1,5 +1,3 @@
-# Create the proper workflow
-cat > .gitea/workflows/deploy.yml << 'EOF'
 name: Deploy Words App
 
 on:
