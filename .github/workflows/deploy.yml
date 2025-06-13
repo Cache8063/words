@@ -1,0 +1,74 @@
+name: Deploy to Portainer
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types:
+      - completed
+    branches:
+      - develop
+      - staging
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - name: Set deployment environment
+      id: set-env
+      run: |
+        if [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
+          echo "environment=production" >> $GITHUB_OUTPUT
+          echo "stack_name=words-prod" >> $GITHUB_OUTPUT
+          echo "image_tag=latest" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event.workflow_run.head_branch }}" == "staging" ]]; then
+          echo "environment=staging" >> $GITHUB_OUTPUT
+          echo "stack_name=words-staging" >> $GITHUB_OUTPUT
+          echo "image_tag=staging" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.event.workflow_run.head_branch }}" == "develop" ]]; then
+          echo "environment=development" >> $GITHUB_OUTPUT
+          echo "stack_name=words-dev" >> $GITHUB_OUTPUT
+          echo "image_tag=develop" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Deploy to Portainer
+      uses: datntdev0/action-deploy-portainer-stack@v1
+      with:
+        portainer-url: ${{ secrets.PORTAINER_URL }}
+        portainer-username: ${{ secrets.PORTAINER_USERNAME }}
+        portainer-password: ${{ secrets.PORTAINER_PASSWORD }}
+        portainer-endpoint: ${{ secrets.PORTAINER_ENDPOINT }}
+        stack-name: ${{ steps.set-env.outputs.stack_name }}
+        stack-definition: |
+          version: '3.8'
+          services:
+            words:
+              image: ghcr.io/cache8063/words:${{ steps.set-env.outputs.image_tag }}
+              environment:
+                - NODE_ENV=${{ steps.set-env.outputs.environment }}
+              deploy:
+                replicas: 1
+                update_config:
+                  parallelism: 1
+                  delay: 10s
+                restart_policy:
+                  condition: on-failure
+              networks:
+                - traefik-public
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.${{ steps.set-env.outputs.stack_name }}.rule=Host(`${{ steps.set-env.outputs.stack_name }}.yourdomain.com`)"
+                - "traefik.http.services.${{ steps.set-env.outputs.stack_name }}.loadbalancer.server.port=80"
+          
+          networks:
+            traefik-public:
+              external: true
+
+    - name: Post deployment summary
+      run: |
+        echo "### 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: ${{ steps.set-env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Stack**: ${{ steps.set-env.outputs.stack_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image**: ghcr.io/cache8063/words:${{ steps.set-env.outputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
