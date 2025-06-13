@@ -18,6 +18,15 @@ fastify.register(fastifyStatic, {
     root: path.join(__dirname, "../assets/"),
 })
 
+// Health check endpoint
+fastify.get("/health", (req, res) => {
+    return { 
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        dictionaries: Array.from(dictionaries.keys()).join(",")
+    }
+})
+
 fastify.post("/game/start", (req, res) => {
     const {dictName} = req.body
     const dictionary = dictionaries.get(dictName) || defaultDictionary;

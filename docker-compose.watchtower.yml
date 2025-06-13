@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  words-dev:
+    image: ghcr.io/cache8063/words:develop
+    container_name: words-dev
+    ports:
+      - "3333:80"
+    environment:
+      - NODE_ENV=development
+      - PORT=80
+      - LISTEN_ADDRESS=0.0.0.0
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=60  # Check every 60 seconds
+      - WATCHTOWER_CLEANUP=true       # Remove old images
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_LABEL_ENABLE=true  # Only update containers with the label
+    restart: unless-stopped

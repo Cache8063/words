@@ -93,16 +93,3 @@ jobs:
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
-    - name: Trigger Portainer Webhook
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
-      run: |
-        if [[ "${{ github.ref }}" == "refs/heads/develop" ]] && [[ -n "${{ secrets.PORTAINER_WEBHOOK_DEV }}" ]]; then
-          curl -X POST ${{ secrets.PORTAINER_WEBHOOK_DEV }}
-          echo "Triggered development deployment"
-        elif [[ "${{ github.ref }}" == "refs/heads/staging" ]] && [[ -n "${{ secrets.PORTAINER_WEBHOOK_STAGING }}" ]]; then
-          curl -X POST ${{ secrets.PORTAINER_WEBHOOK_STAGING }}
-          echo "Triggered staging deployment"
-        elif [[ "${{ github.ref }}" == "refs/heads/main" ]] && [[ -n "${{ secrets.PORTAINER_WEBHOOK_PROD }}" ]]; then
-          curl -X POST ${{ secrets.PORTAINER_WEBHOOK_PROD }}
-          echo "Triggered production deployment"
-        fi
