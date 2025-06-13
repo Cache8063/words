@@ -81,6 +81,18 @@ Multiple deployment options available:
 
 Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and development process.
 
+### Branching Strategy
+
+We use a tiered branching model for development:
+
+- **`main`** - Production-ready code (protected)
+- **`staging`** - Pre-production testing environment
+- **`develop`** - Active development branch
+- **`feature/*`** - New features (branch from develop)
+- **`hotfix/*`** - Emergency fixes (branch from main)
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed workflow instructions.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
@@ -96,19 +108,47 @@ This application is designed to integrate with the AT Protocol ecosystem:
 
 ## Development
 
+### Quick Start
+
 ```bash
+# Clone the repository
+git clone https://github.com/Cache8063/words.git
+cd words
+
 # Install dependencies
 npm install
 
-# Run tests
-npm test
+# Copy environment configuration
+cp .env.example .env
 
 # Start development server
 npm start
+```
+
+### Available Scripts
+
+```bash
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
 
 # Build Docker image
 docker build -t words .
+
+# Run with Docker
+docker run -d -p 3333:80 words
 ```
+
+### Environment Configuration
+
+Different environments use different configuration files:
+- `.env.development` - Local development
+- `.env.staging` - Staging environment
+- `.env.production` - Production environment
+
+Copy `.env.example` to `.env` for local development.
 
 ## Support
 
