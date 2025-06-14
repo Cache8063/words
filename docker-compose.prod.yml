@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  words-prod:
+    image: ghcr.io/cache8063/words:latest
+    ports:
+      - "8088:80"
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - LISTEN_ADDRESS=0.0.0.0
+      - TOTAL_ATTEMPTS=7
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "app=words"
+      - "environment=production"
+      - "traefik.enable=true"
+      - "traefik.http.routers.words-prod.rule=Host(`words.yourdomain.com`)"
+      - "traefik.http.services.words-prod.loadbalancer.server.port=80"

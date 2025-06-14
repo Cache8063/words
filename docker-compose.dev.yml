@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  words-dev:
+    image: ghcr.io/cache8063/words:develop
+    ports:
+      - "8086:80"
+    environment:
+      - NODE_ENV=development
+      - PORT=80
+      - LISTEN_ADDRESS=0.0.0.0
+      - TOTAL_ATTEMPTS=7
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    labels:
+      - "app=words"
+      - "environment=development"
+      - "traefik.enable=false"
