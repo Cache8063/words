@@ -4,7 +4,7 @@ services:
   words-prod:
     image: ghcr.io/cache8063/words:latest
     ports:
-      - "8088:80"
+      - "8086:80"
     environment:
       - NODE_ENV=production
       - PORT=80

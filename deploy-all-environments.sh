@@ -92,18 +92,18 @@ services:
 }
 
 # Deploy all environments
-deploy_stack "dev" "8086" "develop" "1"
+deploy_stack "dev" "8089" "develop" "1"
 deploy_stack "staging" "8087" "staging" "1"
-deploy_stack "production" "8088" "latest" "2"
+deploy_stack "production" "8086" "latest" "2"
 
 echo ""
 echo "🎉 Deployment Complete!"
 echo "======================"
 echo ""
 echo "🌐 Access your environments:"
-echo "  Development: http://ollama.cloudforest-basilisk.ts.net:8086"
+echo "  Development: http://ollama.cloudforest-basilisk.ts.net:8089"
 echo "  Staging:     http://ollama.cloudforest-basilisk.ts.net:8087"
-echo "  Production:  http://ollama.cloudforest-basilisk.ts.net:8088"
+echo "  Production:  http://ollama.cloudforest-basilisk.ts.net:8086"
 echo ""
 echo "📊 Your existing wordsv3 stack remains untouched."
 echo "   You can migrate users when ready by updating DNS/proxy."

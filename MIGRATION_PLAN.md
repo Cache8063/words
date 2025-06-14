@@ -7,9 +7,9 @@
 
 ## New Setup
 Three separate stacks with automatic updates:
-- **words-dev** (port 8086) - Development environment
+- **words-dev** (port 8089) - Development environment
 - **words-staging** (port 8087) - Testing environment  
-- **words-production** (port 8088) - New production environment
+- **words-production** (port 8086) - Production environment (same port as current)
 
 ## Migration Steps
 
@@ -19,21 +19,27 @@ Three separate stacks with automatic updates:
 ```
 This creates three new stacks without touching wordsv3.
 
-### Phase 2: Test New Production
-1. Access http://ollama.cloudforest-basilisk.ts.net:8088
-2. Verify game works correctly
-3. Test all features and themes
+### Phase 2: Deploy Dev and Staging
+1. Run `./deploy-all-environments.sh`
+2. This will create words-dev (8089) and words-staging (8087)
+3. words-production will fail initially (port 8086 in use)
 
-### Phase 3: Gradual Migration
-1. **Option A - DNS/Proxy Switch** (Recommended):
-   - Update your reverse proxy to point to port 8088 instead of 8086
-   - No downtime, instant switch
+### Phase 3: Production Migration
+Since words-production uses the same port (8086) as wordsv3:
+
+1. **Quick Switch** (Recommended - ~10 seconds downtime):
+   ```bash
+   # In Portainer:
+   # 1. Stop wordsv3 stack
+   # 2. Run: ./deploy-all-environments.sh
+   # 3. words-production will deploy on port 8086
+   ```
    
-2. **Option B - Port Swap**:
-   - Stop wordsv3 stack
-   - Update words-production to use port 8086
-   - Start words-production
-   - ~30 seconds downtime
+2. **Manual Migration**:
+   - Stop wordsv3 in Portainer
+   - Deploy words-production stack
+   - Verify it's working
+   - Remove wordsv3 stack
 
 3. **Option C - Load Balancer**:
    - Configure load balancer to split traffic
@@ -51,9 +57,9 @@ If issues occur:
 2. Or stop words-production and start wordsv3 (Option B)
 
 ## Port Summary
-- **8086**: Currently wordsv3 (will become words-dev after migration)
-- **8087**: words-staging (testing)
-- **8088**: words-production (new production)
+- **8086**: Production (currently wordsv3, will become words-production)
+- **8087**: Staging (words-staging)
+- **8089**: Development (words-dev)
 
 ## Benefits After Migration
 - ✅ Separate dev/test environments
