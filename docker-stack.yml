@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  words:
+    image: ghcr.io/cache8063/words:develop
+    ports:
+      - "8086:80"
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - LISTEN_ADDRESS=0.0.0.0
+      - TOTAL_ATTEMPTS=7
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "app=words"
+        - "version=develop"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
