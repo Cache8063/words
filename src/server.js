@@ -9,7 +9,7 @@ let dictionaries;
 let defaultDictionary;
 
 const gameOptions = {
-    totalAttempts: Number(process.env.TOTAL_ATTEMPTS) || 7
+    totalAttempts: Number(process.env.TOTAL_ATTEMPTS) || 6
 };
 
 const gamesById = new Map();

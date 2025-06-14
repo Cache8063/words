@@ -81,7 +81,7 @@ git push origin feature/issue-number-description
   - `POST /game/submit` - Submit word guess and receive feedback
 - **src/game.js**: Core game logic including word validation and guess evaluation
 - **src/dictionary.js**: Dictionary management for multiple languages
-- Environment variables: `PORT` (default: 3333), `LISTEN_ADDRESS`, `TOTAL_ATTEMPTS` (default: 7)
+- Environment variables: `PORT` (default: 3333), `LISTEN_ADDRESS`, `TOTAL_ATTEMPTS` (default: 6)
 - Environment configs: `.env.development`, `.env.staging`, `.env.production`
 
 ### Frontend (Vue.js 2)
