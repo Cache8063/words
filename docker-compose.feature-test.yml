@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  words-feature-test:
+    build: .
+    container_name: words-feature-test
+    ports:
+      - "8089:80"
+    environment:
+      - NODE_ENV=development
+      - PORT=80
+      - LISTEN_ADDRESS=0.0.0.0
+      - TOTAL_ATTEMPTS=6
+    volumes:
+      - ./src:/app/src
+      - ./assets:/app/assets
+      - ./dict:/app/dict
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "app=words"
+      - "environment=feature-test"
+      - "feature=reduce-attempts-to-six"
