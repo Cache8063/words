@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  words:
+    image: ghcr.io/cache8063/words:develop
+    container_name: words-game
+    ports:
+      - "8086:80"
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - LISTEN_ADDRESS=0.0.0.0
+      - TOTAL_ATTEMPTS=7
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - words-network
+
+  # Optional: Watchtower for auto-updates
+  watchtower:
+    image: containrrr/watchtower
+    container_name: words-watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=60
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+    restart: unless-stopped
+    networks:
+      - words-network
+
+networks:
+  words-network:
+    driver: bridge

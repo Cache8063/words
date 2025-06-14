@@ -77,7 +77,8 @@
 /* Force dark mode immediately - prevents flash of light mode */
 html, body {
     height: 100%;
-    margin: 10px;
+    margin: 0;
+    padding: 0;
     touch-action: manipulation;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -85,6 +86,7 @@ html, body {
     background-color: var(--bg-primary) !important;
     color: var(--text-primary) !important;
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
 }
 
 body.dark {
@@ -517,13 +519,36 @@ body.dark .popup {
 @media (max-width: 480px) {
     .main-container {
         padding: 2px;
-        margin: 5px;
+        margin: 0;
     }
     
+    /* Remove max-width constraint on mobile */
+    .board {
+        max-width: 100%;
+        padding: 5px;
+    }
+    
+    .header {
+        max-width: 100%;
+    }
+    
+    /* Make board rows use available width */
+    .board-row {
+        justify-content: space-evenly;
+        padding: 0 5px;
+        max-width: 100%;
+    }
+    
+    /* Adjust tile sizing to better use screen width */
     .tile {
         margin: 2px;
-        width: clamp(40px, 11vw, 55px);
-        height: clamp(40px, 11vw, 55px);
+        width: clamp(45px, calc((100vw - 60px) / 5), 70px);
+        height: clamp(45px, calc((100vw - 60px) / 5), 70px);
+        flex: 0 0 auto;
+    }
+    
+    .keyboard {
+        max-width: 100%;
     }
     
     .btn.key {
@@ -553,10 +578,14 @@ body.dark .popup {
 }
 
 @media (max-width: 360px) {
+    .board-row {
+        padding: 0 3px;
+    }
+    
     .tile {
         margin: 1px;
-        width: clamp(35px, 10vw, 50px);
-        height: clamp(35px, 10vw, 50px);
+        width: clamp(40px, calc((100vw - 40px) / 5), 60px);
+        height: clamp(40px, calc((100vw - 40px) / 5), 60px);
         font-size: clamp(1rem, 4vw, 1.5rem);
     }
     

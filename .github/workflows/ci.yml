@@ -2,16 +2,39 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ main, develop, staging ]
   pull_request:
-    branches: [ master, main ]
+    branches: [ main, develop, staging ]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: cache8063/words
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Run linting
+      run: npm run lint || true
+      continue-on-error: true
+
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,7 +61,11 @@ jobs:
         tags: |
           type=ref,event=branch
           type=ref,event=pr
-          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+          type=raw,value=staging,enable=${{ github.ref == 'refs/heads/staging' }}
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -53,5 +80,16 @@ jobs:
     - name: Generate deployment summary
       run: |
         echo "### 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **Image**: \`ghcr.io/cache8063/words:latest\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Quick Start**: \`docker run -d -p 3333:80 ghcr.io/cache8063/words:latest\`" >> $GITHUB_STEP_SUMMARY
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: \`ghcr.io/cache8063/words:latest\`" >> $GITHUB_STEP_SUMMARY
+        elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: \`ghcr.io/cache8063/words:staging\`" >> $GITHUB_STEP_SUMMARY
+        elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          echo "- **Environment**: Development" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: \`ghcr.io/cache8063/words:develop\`" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
