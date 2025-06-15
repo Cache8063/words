@@ -4,6 +4,7 @@ const path = require("path")
 
 const {Game} = require("./game")
 const {Dictionary} = require("./dictionary")
+const fastifyATProto = require("./auth")
 
 let dictionaries;
 let defaultDictionary;
@@ -16,6 +17,14 @@ const gamesById = new Map();
 
 fastify.register(fastifyStatic, {
     root: path.join(__dirname, "../assets/"),
+})
+
+// Register ATProto authentication
+fastify.register(fastifyATProto, {
+    jwtSecret: process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
+    defaultService: 'https://bsky.social',
+    autoDetectService: true,
+    debug: process.env.DEBUG === 'true'
 })
 
 // Health check endpoint

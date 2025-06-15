@@ -74,6 +74,29 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Auth Section -->
+                    <div class="auth-section">
+                        <div v-if="!authState.user" class="auth-button" @click="showLoginModal = true">
+                            <i class="bi bi-person-circle"></i>
+                            <span class="auth-text">Sign In</span>
+                        </div>
+                        <div v-else class="user-menu" @click="toggleUserMenu">
+                            <i class="bi bi-person-fill"></i>
+                            <span class="user-handle">{{ authState.user.handle }}</span>
+                            
+                            <!-- User Menu -->
+                            <div v-if="showUserMenu" class="user-dropdown">
+                                <div class="menu-header">{{ authState.user.handle }}</div>
+                                <div class="menu-item" @click.stop="viewStats">
+                                    <i class="bi bi-graph-up"></i> My Stats
+                                </div>
+                                <div class="menu-item" @click.stop="logout">
+                                    <i class="bi bi-box-arrow-right"></i> Sign Out
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -135,6 +158,71 @@
                 <h1 class="display-6">Error</h1>
                 <hr />
                 {{ error }}
+            </div>
+
+            <!-- Login Modal -->
+            <div v-if="showLoginModal" class="modal-backdrop" @click="showLoginModal = false">
+                <div class="modal-content" @click.stop>
+                    <div class="modal-header">
+                        <h2>Sign in with Bluesky</h2>
+                        <button class="close-button" @click="showLoginModal = false">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="handleLogin">
+                            <div class="form-group">
+                                <label for="identifier">Handle or Email</label>
+                                <input 
+                                    type="text" 
+                                    id="identifier" 
+                                    v-model="loginForm.identifier"
+                                    placeholder="alice.bsky.social or alice@example.com"
+                                    required
+                                    class="form-control"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    v-model="loginForm.password"
+                                    required
+                                    class="form-control"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="service">
+                                    <input 
+                                        type="checkbox" 
+                                        id="customService" 
+                                        v-model="loginForm.useCustomService"
+                                    >
+                                    Use custom PDS
+                                </label>
+                                <input 
+                                    v-if="loginForm.useCustomService"
+                                    type="url" 
+                                    v-model="loginForm.service"
+                                    placeholder="https://your-pds.com"
+                                    class="form-control mt-2"
+                                >
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" :disabled="authState.loading">
+                                    <span v-if="authState.loading">
+                                        <i class="bi bi-arrow-repeat spin"></i> Signing in...
+                                    </span>
+                                    <span v-else>Sign In</span>
+                                </button>
+                            </div>
+                            <div v-if="authState.error" class="alert alert-danger mt-3">
+                                {{ authState.error }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
         </div>

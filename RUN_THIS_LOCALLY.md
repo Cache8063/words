@@ -35,4 +35,4 @@ Your personal access token provides full access to your repositories. Always:
 - Keep it secret
 - Never commit it to code
 - Revoke it if exposed
-- Use environment variables or secure vaults
+- Use environment variables or secure vaults2

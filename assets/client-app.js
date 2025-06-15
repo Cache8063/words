@@ -98,6 +98,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         wordCount: '1,100+'
                     }
                 ],
+                // Authentication state
+                authState: {
+                    user: null,
+                    loading: false,
+                    error: null
+                },
+                showLoginModal: false,
+                showUserMenu: false,
+                loginForm: {
+                    identifier: '',
+                    password: '',
+                    useCustomService: false,
+                    service: ''
+                },
+                
                 availableThemes: [
                     {
                         id: 'default',
@@ -450,6 +465,89 @@ document.addEventListener('DOMContentLoaded', function() {
                         body.classList.remove("dark");
                     }
                     document.cookie = `darkMode=${this.darkMode}`;
+                },
+
+                // Authentication methods
+                toggleUserMenu: function() {
+                    this.showUserMenu = !this.showUserMenu;
+                },
+
+                handleLogin: async function() {
+                    this.authState.loading = true;
+                    this.authState.error = null;
+                    
+                    try {
+                        const payload = {
+                            identifier: this.loginForm.identifier,
+                            password: this.loginForm.password
+                        };
+                        
+                        if (this.loginForm.useCustomService && this.loginForm.service) {
+                            payload.service = this.loginForm.service;
+                        }
+                        
+                        const response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Login failed');
+                        }
+                        
+                        this.authState.user = data.user;
+                        this.showLoginModal = false;
+                        
+                        // Reset form
+                        this.loginForm = {
+                            identifier: '',
+                            password: '',
+                            useCustomService: false,
+                            service: ''
+                        };
+                        
+                    } catch (error) {
+                        this.authState.error = error.message;
+                    } finally {
+                        this.authState.loading = false;
+                    }
+                },
+
+                logout: async function() {
+                    try {
+                        await fetch('/api/auth/logout', {
+                            method: 'POST'
+                        });
+                        
+                        this.authState.user = null;
+                        this.showUserMenu = false;
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                    }
+                },
+
+                checkSession: async function() {
+                    try {
+                        const response = await fetch('/api/auth/session');
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.authState.user = data.user;
+                        }
+                    } catch (error) {
+                        console.error('Session check error:', error);
+                    }
+                },
+
+                viewStats: function() {
+                    // TODO: Implement stats view
+                    console.log('View stats - coming soon!');
+                    this.showUserMenu = false;
                 }
 
             },
@@ -462,6 +560,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Set dark mode
                 this.darkMode = true;
                 document.querySelector("body").classList.add("dark");
+                
+                // Check authentication session
+                this.checkSession();
                 
                 this.startGame();
 
@@ -479,6 +580,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     if (!e.target.closest('.dictionary-selector')) {
                         this.showDictionaryMenu = false;
+                    }
+                    if (!e.target.closest('.user-menu')) {
+                        this.showUserMenu = false;
                     }
                 });
 
