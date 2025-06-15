@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Commit message hook to enforce conventional commits without emojis
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+commit_regex='^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,72}$'
+commit_file=$1
+commit_message=$(cat "$commit_file")
+
+# Get the first line of the commit message
+first_line=$(echo "$commit_message" | head -n1)
+
+echo "Checking commit message format..."
+
+# Check for emojis
+if echo "$first_line" | grep -E "[🎉🚀🐛📝💄♻️✅🔧🎯💡🔥⚡️🌟✨🎨🏗️📦🚨💚⚙️📌🔨🌐💩🚑️🔒⬆️⬇️➕➖🍱💫🗑️🔇🔊📱💻🖥️]" > /dev/null; then
+    echo -e "${RED}✗ Commit message contains emojis${NC}"
+    echo -e "${RED}Please remove emojis from your commit message.${NC}"
+    echo -e "Current message: $first_line"
+    exit 1
+fi
+
+# Check conventional commit format
+if ! echo "$first_line" | grep -qE "$commit_regex"; then
+    echo -e "${RED}✗ Commit message doesn't follow conventional format${NC}"
+    echo -e "${RED}Expected format: <type>: <description>${NC}"
+    echo -e "${RED}Valid types: feat, fix, docs, style, refactor, test, chore${NC}"
+    echo -e "${RED}Example: feat: add user authentication${NC}"
+    echo -e "Your message: $first_line"
+    exit 1
+fi
+
+# Check subject line length
+if [ ${#first_line} -gt 72 ]; then
+    echo -e "${YELLOW}⚠ Warning: Subject line is longer than 72 characters (${#first_line} chars)${NC}"
+fi
+
+# Extract type from commit message
+commit_type=$(echo "$first_line" | sed -E 's/^([a-z]+)(\(.+\))?: .*/\1/')
+
+# Provide feedback based on type
+case "$commit_type" in
+    feat)
+        echo -e "${GREEN}✓ New feature commit${NC}"
+        ;;
+    fix)
+        echo -e "${GREEN}✓ Bug fix commit${NC}"
+        ;;
+    docs)
+        echo -e "${GREEN}✓ Documentation commit${NC}"
+        ;;
+    style)
+        echo -e "${GREEN}✓ Code style commit${NC}"
+        ;;
+    refactor)
+        echo -e "${GREEN}✓ Refactoring commit${NC}"
+        ;;
+    test)
+        echo -e "${GREEN}✓ Test commit${NC}"
+        ;;
+    chore)
+        echo -e "${GREEN}✓ Maintenance commit${NC}"
+        ;;
+esac
+
+echo -e "${GREEN}Commit message format is valid!${NC}"
+exit 0
